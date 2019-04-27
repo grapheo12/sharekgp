@@ -1,0 +1,24 @@
+{
+  "name": "sharekgp",
+  "version": "1.0.0",
+  "description": "This is an app for cab sharing for travelling KGPians",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.16.4",
+    "nodemailer": "^6.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "Cab",
+    "Sharing",
+    "Express"
+  ],
+  "author": "Shubham Mishra",
+  "license": "ISC"
+}

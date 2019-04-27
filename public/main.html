@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Travel Share for IIT KGP</title>
+        <script src="jquery-3.4.0.min.js"></script>
+    </head>
+
+    <body>
+        <div class="calendar-container">
+            <div class="month-year">
+                <span id="back_btn">Prev</span>
+                <span id="month"></span>
+                <span id="year"></span>
+                <span id="next_btn">Next</span>
+            </div>
+
+            <div class="dates">
+                <table>
+                    <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="modal-container" id="modal">
+            <div class="modHead"><span id="modDate"></span><span class="close" id="closereq">&times;</span></div>
+            <div class="shareq" id="shareq">
+                <span>Current Requests:</span>
+            </div>
+            <span id="opennew">+ Create a new request</span>
+            <div class="newReq" id="reqform">
+                <form>
+                    Name:  <input type="text" id="newName" ><br>
+                    Time:  <input type="text" id="newTime"><br>
+                    Request Description:<br>
+                    <textarea id="newDesc" placeholder="Do not forget to enter your Contact details"></textarea><br>
+                    <span id="newSubmit">Submit</span>
+                </form>
+            </div> 
+        </div>
+
+
+        <script>
+            const monthmap = ["January", "February", "March", "April", "May", "June", "July", 
+                                "August", "September", "October", "November", "December"];
+            var date = new Date();
+            var month = date.getMonth();
+            var year = date.getFullYear();
+            var calendarData = $("td");
+
+            document.getElementById("month").innerHTML = (monthmap[month] + ", ");
+            document.getElementById("year").innerHTML = String(year);
+            $("#modal").hide();
+            $("#reqform").hide();
+
+            $("#newSubmit").click(() => {
+                let payload = {day: $("#modDate").text(), name: $("#newName").val(), time: $("#newTime").val(), desc: $("#newDesc").val()};
+                $.post('/postreq', payload, (data, status) => {
+                    alert("Posted Successfully. Please Refresh the page");
+                });
+            });
+
+
+            $("#opennew").click(() =>{
+                $(this).text("- Create a new request");
+                $("#reqform").slideToggle();
+            });
+
+            $("#closereq").click(() =>{
+                $("#modal").toggle();
+                $("#reqform").slideToggle();
+            });
+
+            function fillCalendar(){
+                let monthfirst = new Date(year, month, 1, 0, 0, 0, 0);
+                let dayfirst = monthfirst.getDay();
+                let numberOfDays = 0;
+                switch(month){
+                    case 0: case 2: case 4: case 6: case 7: case 9: case 11:
+                        numberOfDays = 31;
+                        break;
+                    case 1:
+                        if (year % 4 == 0 && year % 200 != 0)
+                            numberOfDays = 29;
+                        else 
+                            numberOfDays = 28;
+                        break;
+                    default:
+                        numberOfDays = 30;
+                        break;
+                }
+                var i, j = 1;
+                for (i = dayfirst; i <= numberOfDays; i++){
+                    $(`td:eq(${i})`).text(String(j));
+                    $(`td:eq(${i})`).unbind("click").on("click", function(){
+                        console.log("clicked");
+                        $("td").css("background-color", "white");
+                        $(this).css("background-color", "lightyellow");
+                        $("#shareq").html(`<span>Current Requests:</span>`);
+                        $("#modal").show();
+                        $("#reqform").hide();
+                        let payload = {day: Number($(this).text()), month: month, year: year};
+                        $("#modDate").text(`${$(this).text()}_${month}_${year}`);
+                        $.post("/getreq", payload, (data, status) => {
+                            console.log(data);
+                            let datobj = JSON.parse(data);
+                            let i;
+                            
+                            for (i = 0; i < datobj.number; i++){
+                                console.log(i);
+                                let block = `<div class="reqbody">
+                                    <span class="reqName">${datobj.reqs[i].name}</span><br>
+                                    <mark>Time:</mark> <span class="reqTime">${datobj.reqs[i].time}</span><br>
+                                    <mark>Description:</mark><br> <span class="reqDesc">${datobj.reqs[i].desc}</span><br>
+                                    </div>`;
+                                $("#shareq").append(block);
+
+                            }
+                        
+                        });
+                    });
+                    j++;
+                }
+            }
+
+            fillCalendar(); 
+
+            function getNext(){
+                let i;
+                for (i = 0; i < calendarData.length; i++)
+                    calendarData[i].innerHTML = "";
+                if (month == 11){
+                    month = 0;
+                    year++;
+                }else
+                    month++;
+
+                fillCalendar();
+                document.getElementById("month").innerHTML = (monthmap[month] + ", ");
+                document.getElementById("year").innerHTML = String(year);
+
+                
+            }
+
+            function getPrev(){
+                let i;
+                for (i = 0; i < calendarData.length; i++)
+                    calendarData[i].innerHTML = "";
+                if (month == 0){
+                    month = 11;
+                    year--;
+                }else
+                    month--;
+
+                fillCalendar();
+                document.getElementById("month").innerHTML = (monthmap[month] + ", ");
+                document.getElementById("year").innerHTML = String(year);
+
+                
+            }
+
+            document.getElementById("next_btn").onclick = getNext;
+            document.getElementById("back_btn").onclick = getPrev;
+
+        </script>
+        <style>
+            td{
+                width: 40px;
+                height: 40px;
+                border-width: 1px;
+                text-align: center;
+                border-style: double;
+            }
+            .month-year{
+                width: 320px;
+                background-color: lightgray;
+                text-align: center;
+            }
+            #back_btn{
+                float: left;
+            }
+            #next_btn{
+                float: right;
+            }
+            #back_btn, #next_btn{
+                color: blue;
+                cursor: pointer;
+            }
+
+            .modal-container > span{
+                color: blue;
+                cursor: pointer;
+            }
+            .shareq > span{
+                background-color: lightgray;
+                font-weight: bold;
+            }
+            #close{
+                float: right;
+                color: black;
+                font-weight: bold;
+            }
+            
+            .reqbody{
+                background-color: beige;
+                padding-left: 10px;
+                margin: 5px;
+                width: 320px;
+            }
+
+            .reqbody mark{
+                background-color: red;
+                color: yellow;
+            }
+
+            .reqName{
+                font-weight: bold;
+            }
+
+            .reqTime{
+                color: green;
+            }
+            #modDate{
+                display: none;
+            }
+
+
+        </style>
+
+
+        
+
