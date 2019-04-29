@@ -61,7 +61,7 @@ app.post('/postreq', urlencodedParser, (req, res) => {
         
 
 
-var server = app.listen(8080, () => {
+var server = app.listen(process.env.PORT || 8080, () => {
     console.log("Server Running!");
 });
 
