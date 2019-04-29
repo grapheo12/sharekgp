@@ -1,6 +1,6 @@
 {
   "name": "sharekgp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is an app for cab sharing for travelling KGPians",
   "main": "server.js",
   "dependencies": {
@@ -22,5 +22,13 @@
     "Express"
   ],
   "author": "Shubham Mishra",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grapheo12/sharekgp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grapheo12/sharekgp/issues"
+  },
+  "homepage": "https://github.com/grapheo12/sharekgp#readme"
 }
